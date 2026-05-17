@@ -1,23 +1,24 @@
 # 広告運用レポート自動化 (Ad Report Automation)
 
 ## 概要 (Overview)
-本プロジェクトは、クライアントnn社分の広告運用（Google Ads / Meta Ads）レポート作成業務を完全自動化するためのデータパイプラインおよびBIダッシュボード構築プロジェクトです。
-毎月末に発生している手作業によるレポート集計作業を撤廃し、工数を限りなく「ゼロ（確認のみ）」に近い状態にすることを目指します。
+本プロジェクトは、クライアント15社分の広告運用（Google Ads / Meta Ads）レポート作成業務を完全自動化するためのデータパイプラインおよびBIダッシュボード構築プロジェクトです。
+毎月末に発生している手作業によるレポート集計作業を撤廃し、工数を「ゼロ（確認のみ）」にすることを目指します。
 
+## プロジェクト制約事項 (Project Constraints)
+- **期間**: 12週間（約3ヶ月）
+- **リソース制限**: **月20時間（週約5時間）稼働**
+- **運用方針**: 納品後の運用は非エンジニアのクライアント担当者が行うため、保守性の高いシンプルな構成を維持します。
 
 ## 技術スタック (Tech Stack)
-- **言語**: Python 3.11+
-- **データ抽出 (EL)**: Google Ads API, Meta Graph API
-- **データウェアハウス (DWH)**: Google BigQuery
-- **データ変換 (Transform)**: dbt (Data Build Tool)
-- **インフラ構成管理 (IaC)**: Terraform
-- **BI / レポート出力**: Looker Studio, Python (PDF生成自動化)
+- **データ抽出 (EL)**: Google Apps Script (GAS) または Python (軽量スクリプト)
+- **データソース**: Google Ads API, Meta Graph API
+- **データ蓄積・管理**: Google Spreadsheet
+- **BI / レポート出力**: Looker Studio (標準のPDF定期配信機能を最大限活用)
 
 ## システムアーキテクチャ (Architecture)
-1. **Extract**: Pythonスクリプトにより各種広告APIから日次データを抽出
-2. **Load**: 抽出データをBigQueryのRawデータセットへロード
-3. **Transform**: dbtを用いて、生データを正規化し、媒体横断の集計マートへ変換
-4. **Visualize & Export**: Looker Studioで可視化し、PDFとして自動出力
+1. **Extract & Load**: GAS（またはPython）により各種広告APIから日次データを抽出し、スプレッドシートへ書き込み。
+2. **Storage & Transform**: スプレッドシート上でデータを蓄積し、Looker Studioが読み込みやすい形式（フラットなテーブル）に整形。
+3. **Visualize & Export**: Looker Studioで可視化し、標準機能を利用してPDFレポートを定期配信。
 
 ## ディレクトリ構成 (Repository Structure)
 本リポジトリは、AIエージェント（Gemini CLI等）を用いた仕様駆動開発（SDD: Specification-Driven Development）に最適化された構成になっています。
@@ -34,10 +35,9 @@
 │   ├── TODO.md          # 実装タスク一覧
 │   └── KNOWLEDGE.md     # 技術的な調査メモ
 ├── src/                 # 実装コード
-│   ├── extract/         # APIデータ取得スクリプト
-│   ├── transform/       # dbtプロジェクト
-│   └── export/          # PDF自動生成スクリプト
-├── infra/               # Terraform構成ファイル
+│   ├── extract/         # Pythonを用いたAPIデータ取得スクリプト (使用する場合)
+│   ├── export/          # PDF自動生成スクリプト (標準機能で不足する場合)
+│   └── gas/             # Google Apps Script コード
 ├── GEMINI.md            # Gemini CLI用システムプロンプト
 └── .gitignore           # Git除外設定
 ```
@@ -55,18 +55,10 @@
 ```bash
 git clone [https://github.com/your-username/ad-report-automation.git](https://github.com/your-username/ad-report-automation.git)
 cd ad-report-automation
-python -m venv .venv
-source .venv/bin/activate  # Windowsの場合は `.venv\Scripts\activate`
-pip install -r requirements.txt # (必要に応じて作成)
 ```
+### 2. 認証情報の管理（シークレット）
+本プロジェクトでは、各広告APIにアクセスするためのシークレット情報（トークン等）を使用します。セキュリティ保護のため、これらは絶対にGitコミットしないでください。
 
-### 2. 認証情報の配置（Git管理外）
-GCPのサービスアカウントキーや各種APIトークンは `.env` ファイル、または指定のローカルパスに配置してください（`.gitignore` で除外設定済みです）。
-
-### 3. インフラのデプロイ (Terraform)
-```bash
-cd infra
-terraform init
-terraform plan
-terraform apply
-```
+GASで実装する場合:
+- Meta APIトークンやGoogle Ads開発者トークンは、GASエディタの「プロジェクトの設定」>「スクリプトプロパティ」に環境変数として登録して使用します。
+- ローカルPythonでPoC（概念実証）を行う場合:リポジトリ直下に .env ファイルを作成し、必要なAPIトークンを記述してください（.gitignore で除外設定済みです）。
