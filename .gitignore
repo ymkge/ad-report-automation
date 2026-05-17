@@ -1,0 +1,94 @@
+# ==============================================================================
+# Object: .gitignore for Ad Report Automation Project
+# Technology Stack: Python, Terraform, dbt, BigQuery / GCP, Meta API
+# ==============================================================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Python Virtual Environments ---
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# --- dbt (Data Build Tool) ---
+target/
+logs/
+dbt_modules/
+dbt_packages/
+
+# --- Terraform ---
+# Local .terraform directories
+.terraform/
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files, which are likely to contain sensitive data
+*.tfvars
+*.tfvars.json
+
+# Ignore override files do not contain vars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# --- Credentials & Sensitive Data (CRITICAL) ---
+# GCP Service Account Keys (e.g. service-account.json)
+*.json
+
+# Environment Variables files (Tokens, API Keys)
+.env
+.env.*
+.secrets
+*.pem
+*.key
+
+# --- IDEs & Editors ---
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Operating System ---
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
